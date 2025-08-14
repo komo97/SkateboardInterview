@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class SkateboardInterviewEditorTarget : TargetRules
 {
-	public SkateboardInterviewEditorTarget(TargetInfo Target) : base(Target)
+	public SkateboardInterviewEditorTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
