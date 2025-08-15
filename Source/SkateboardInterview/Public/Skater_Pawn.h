@@ -24,6 +24,9 @@ protected:
 	float TurnSpeed = 0.1f;
 	UPROPERTY(EditAnywhere)
 	float JumpPower = 20.0f;
+	UPROPERTY(EditAnywhere)
+	float AccelerationInterval = 1.5f;
+	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
@@ -51,6 +54,9 @@ private:
 	
 	UPROPERTY()
 	float Velocity;
+
+	float AccelerationCooldown = 0;
+	bool PressedAccel = false;
 	
 public:
 	// Sets default values for this pawn's properties
@@ -63,7 +69,8 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Turn(const FInputActionValue& Value);
 	void RotateCamera(const FInputActionValue& Value);
-	
+	void SkateJump();
+	void CancelMove();
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -80,5 +87,5 @@ private:
 	void DoRotation(float Right);
 	void DoJump();
 	void DoRailGrind(); //Might not implement
-	void DoMovement();
+	void DoMovement(float DeltaTime);
 };
