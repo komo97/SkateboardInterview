@@ -15,17 +15,15 @@ class SKATEBOARDINTERVIEW_API ASkater_Pawn : public ACharacter
 protected:
 	//Acceleration per tick while paddling
 	UPROPERTY(EditAnywhere)
-	float Acceleration = 0.3f;
+	float Acceleration = 1500.0f;
 	//Permanent deceleration of the skate
 	UPROPERTY(EditAnywhere)
-	float Drag = 0.05f;
+	float DecelerationSpeed = 0.5f;
 	//Turning speed of the skate
 	UPROPERTY(EditAnywhere)
-	float TurnSpeed = 0.1f;
+	float TurnSpeed = 0.3f;
 	UPROPERTY(EditAnywhere)
-	float JumpPower = 20.0f;
-	UPROPERTY(EditAnywhere)
-	float AccelerationInterval = 1.5f;
+	float AccelerationInterval = 1.0f;
 	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -52,11 +50,7 @@ private:
 		Grinding
 	} CurrentMovementState = EMovementState::Grounded;
 	
-	UPROPERTY()
-	float Velocity;
-
 	float AccelerationCooldown = 0;
-	bool PressedAccel = false;
 	
 public:
 	// Sets default values for this pawn's properties
@@ -69,8 +63,7 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Turn(const FInputActionValue& Value);
 	void RotateCamera(const FInputActionValue& Value);
-	void SkateJump();
-	void CancelMove();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -85,7 +78,5 @@ public:
 private:
 	void DoAcceleration(float Forward);
 	void DoRotation(float Right);
-	void DoJump();
 	void DoRailGrind(); //Might not implement
-	void DoMovement(float DeltaTime);
 };

@@ -22,14 +22,21 @@ void ASkater_Pawn::BeginPlay()
 
 void ASkater_Pawn::Move(const FInputActionValue& Value)
 {
-	if (AccelerationCooldown > 0) return;
 	float MovementValue = Value.Get<float>();
+	if (AccelerationCooldown > 0 || !GetCharacterMovement()->IsMovingOnGround()) return; // Paddle to accelerate. Cannot accel on air
+	if (MovementValue < 0) //Reduce the speed of the skate if pressing backwards instead of going backwards.
+	{
+		GetCharacterMovement()->Velocity *= DecelerationSpeed;
+		AccelerationCooldown = AccelerationInterval / 5; //Make the stop gradual using 1/5th of the cooldown
+		return;
+	}
 	AccelerationCooldown = AccelerationInterval;
 	DoAcceleration(MovementValue);
 }
 
 void ASkater_Pawn::Turn(const FInputActionValue& Value)
 {
+	if (!GetCharacterMovement()->IsMovingOnGround()) return; //Cannot air strafe
 	float TurnValue = Value.Get<float>();
 	DoRotation(TurnValue);
 }
@@ -38,19 +45,10 @@ void ASkater_Pawn::RotateCamera(const FInputActionValue& Value)
 {
 }
 
-void ASkater_Pawn::SkateJump()
-{
-}
-
-void ASkater_Pawn::CancelMove()
-{
-}
-
 // Called every frame
 void ASkater_Pawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	DoMovement(DeltaTime);
 	if (AccelerationCooldown > 0) AccelerationCooldown -= DeltaTime;
 }
 
@@ -60,7 +58,7 @@ void ASkater_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASkater_Pawn::SkateJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASkater_Pawn::Jump);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkater_Pawn::Move);
 		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ASkater_Pawn::Turn);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &ASkater_Pawn::RotateCamera);
@@ -91,19 +89,13 @@ void ASkater_Pawn::DoAcceleration(float Forward)
 void ASkater_Pawn::DoRotation(float Right)
 {
 	AddActorLocalRotation(FRotator(0,Right*TurnSpeed,0));
-	
-}
-
-void ASkater_Pawn::DoJump()
-{
+	float velocityMagnitude = GetCharacterMovement()->Velocity.Length();
+	//Make sure that the character is always moving towards the facing direction
+	GetCharacterMovement()->Velocity = GetActorForwardVector() * velocityMagnitude; 
 }
 
 void ASkater_Pawn::DoRailGrind()
 {
 }
 
-void ASkater_Pawn::DoMovement(float DeltaTime)
-{
-	
-}
 
