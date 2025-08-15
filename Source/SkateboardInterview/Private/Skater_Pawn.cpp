@@ -50,6 +50,7 @@ void ASkater_Pawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (AccelerationCooldown > 0) AccelerationCooldown -= DeltaTime;
+	if (GetCharacterMovement()->IsMovingOnGround()) bIsJumping = false;
 }
 
 // Called to bind functionality to input
@@ -58,8 +59,9 @@ void ASkater_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASkater_Pawn::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ASkater_Pawn::DoJump);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkater_Pawn::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASkater_Pawn::FinishAcceleration);
 		EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ASkater_Pawn::Turn);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &ASkater_Pawn::RotateCamera);
 	}
@@ -82,8 +84,23 @@ void ASkater_Pawn::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, c
 
 void ASkater_Pawn::DoAcceleration(float Forward)
 {
-	UE_LOG(LogEngine, Log, TEXT("DoAcceleration forward: %f"), Forward);
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector()*Forward*Acceleration, true);
+	bIsPaddling = true;
+}
+
+void ASkater_Pawn::FinishAcceleration()
+{
+	bIsPaddling = false;
+}
+
+void ASkater_Pawn::DoJump()
+{
+	if (GetCharacterMovement()->CanAttemptJump())
+	{
+		bIsPaddling = false;
+		bIsJumping = true;
+	}
+	Jump();
 }
 
 void ASkater_Pawn::DoRotation(float Right)
@@ -91,7 +108,8 @@ void ASkater_Pawn::DoRotation(float Right)
 	AddActorLocalRotation(FRotator(0,Right*TurnSpeed,0));
 	float velocityMagnitude = GetCharacterMovement()->Velocity.Length();
 	//Make sure that the character is always moving towards the facing direction
-	GetCharacterMovement()->Velocity = GetActorForwardVector() * velocityMagnitude; 
+	GetCharacterMovement()->Velocity = GetActorForwardVector() * velocityMagnitude;
+	bIsPaddling = true;
 }
 
 void ASkater_Pawn::DoRailGrind()

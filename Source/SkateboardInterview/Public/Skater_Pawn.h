@@ -24,6 +24,12 @@ protected:
 	float TurnSpeed = 0.3f;
 	UPROPERTY(EditAnywhere)
 	float AccelerationInterval = 1.0f;
+
+	//Animation helper properties
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsPaddling = false;
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsJumping = false;
 	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -77,6 +83,8 @@ public:
 
 private:
 	void DoAcceleration(float Forward);
+	void FinishAcceleration();
+	void DoJump();
 	void DoRotation(float Right);
 	void DoRailGrind(); //Might not implement
 };
