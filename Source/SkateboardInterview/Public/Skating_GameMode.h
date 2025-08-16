@@ -14,4 +14,11 @@ class SKATEBOARDINTERVIEW_API ASkating_GameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+	
+public:
+    UPROPERTY(BlueprintReadWrite)
+    int IPoints = 0;
+	
+	UFUNCTION(BlueprintCallable)
+	void AddPoints(int Multiplier = 1);
 };
